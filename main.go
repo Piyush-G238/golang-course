@@ -19,7 +19,19 @@ func main() {
 		return
 	}
 
-	note.SaveNote()
+	SaveData(note)
+	// note.SaveNote()
+
+	/*
+		todo, err := GetTodoData()
+		if err != nil {
+			fmt.Print(err.Error())
+			return
+		}
+	*/
+
+	// SaveData(todo)
+
 }
 
 func GetNoteData() (models.Note, error) {
@@ -39,4 +51,14 @@ func GetUserInput(prompt string) string {
 	value = strings.TrimSuffix(value, "\n")
 	value = strings.TrimSuffix(value, "\r")
 	return value
+}
+
+func GetTodoData() (models.Todo, error) {
+
+	content := GetUserInput("Todo Text: ")
+	return models.NewTodo(content)
+}
+
+func SaveData(saver models.Saver) error {
+	return saver.Save()
 }

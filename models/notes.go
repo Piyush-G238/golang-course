@@ -34,13 +34,14 @@ func (note Note) GetContent() string {
 	return note.Content
 }
 
-func (note Note) SaveNote() {
+func (note Note) Save() error {
 
 	fileName := strings.ReplaceAll(note.Title, " ", "_")
 	fileName = strings.ToLower(fileName)
 	jsonData, _error := json.Marshal(note)
 	if _error != nil {
-		return
+		return _error
 	}
-	os.WriteFile(fileName+".json", jsonData, os.ModePerm)
+
+	return os.WriteFile(fileName+".json", jsonData, os.ModePerm)
 }
