@@ -2,7 +2,9 @@ package main
 
 import (
 	"net/http"
+	"time"
 
+	"booking.com/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +15,7 @@ func main() {
 
 	// GET request on /events
 	httpServer.GET("/events", getEvents)
+	httpServer.POST("/events", createEvents)
 
 	// running http server on port 8080
 	httpServer.Run(":8080")
@@ -20,5 +23,22 @@ func main() {
 
 func getEvents(context *gin.Context) {
 
-	context.JSON(http.StatusOK, gin.H{"message": "Hello!"})
+	// context.JSON(http.StatusOK, gin.H{"message": "Hello!"})
+	events := models.GetAllEvents()
+	context.JSON(http.StatusOK, events)
+}
+
+func createEvents(context *gin.Context) {
+	var event models.Event
+	_error := context.ShouldBindJSON(&event)
+	if _error != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request body"})
+		return
+	}
+	event.ID = 1
+	event.UserID = 1
+	event.DateTime = time.Now()
+
+	event.Save()
+	context.JSON(http.StatusCreated, gin.H{"event": event})
 }
