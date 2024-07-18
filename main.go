@@ -1,14 +1,23 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"net/http"
 	"time"
 
 	"booking.com/models"
 	"github.com/gin-gonic/gin"
+
+	"booking.com/db"
 )
 
+var DB *sql.DB
+
 func main() {
+
+	// initialize database connection
+	DB = db.InitDB()
 
 	// Default returns an Engine instance with the Logger and Recovery middleware already attached.
 	httpServer := gin.Default()
@@ -24,7 +33,7 @@ func main() {
 func getEvents(context *gin.Context) {
 
 	// context.JSON(http.StatusOK, gin.H{"message": "Hello!"})
-	events := models.GetAllEvents()
+	events := models.GetAllEvents(DB)
 	context.JSON(http.StatusOK, events)
 }
 
@@ -35,10 +44,16 @@ func createEvents(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request body"})
 		return
 	}
-	event.ID = 1
+	// event.ID = 1
 	event.UserID = 1
 	event.DateTime = time.Now()
 
-	event.Save()
-	context.JSON(http.StatusCreated, gin.H{"event": event})
+	id, _err := event.Save(DB)
+
+	if _err != nil {
+
+		fmt.Println(_err)
+		panic("unable to save event")
+	}
+	context.JSON(http.StatusCreated, gin.H{"Generated ID": id})
 }
