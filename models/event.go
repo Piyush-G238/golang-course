@@ -38,6 +38,25 @@ func (event Event) Save(db *sql.DB) (int64, error) {
 	return result.LastInsertId()
 }
 
+func (event Event) Update(db *sql.DB) (int64, error) {
+
+	updateEventQuery := "UPDATE events SET name = ?, description = ?, location = ?, dateTime = ?, userId = ? WHERE id = ?"
+	stmt, _prepareErr := db.Prepare(updateEventQuery)
+
+	if _prepareErr != nil {
+		fmt.Println(_prepareErr.Error())
+		panic("unable to generate provided sql query")
+	}
+
+	result, _resultErr := stmt.Exec(event.Name, event.Description, event.Location, event.DateTime, event.UserID, event.ID)
+	if _resultErr != nil {
+		fmt.Println(_resultErr)
+		panic("unable to execute update event query")
+	}
+
+	return result.LastInsertId()
+}
+
 func GetAllEvents(db *sql.DB) []Event {
 	var events []Event
 
@@ -67,4 +86,32 @@ func GetAllEvents(db *sql.DB) []Event {
 	}
 	defer rows.Close()
 	return events
+}
+
+func GetEventByID(eventId int64, db *sql.DB) Event {
+	getEventByIdQuery := "SELECT id, name, description, location, userId, dateTime FROM events WHERE id = ?"
+	row := db.QueryRow(getEventByIdQuery, eventId)
+
+	var event Event
+	row.Scan(
+		&event.ID,
+		&event.Name,
+		&event.Description,
+		&event.Location,
+		&event.UserID,
+		&event.DateTime)
+
+	return event
+}
+
+func DeleteEventByID(eventId int64, db *sql.DB) {
+
+	deleteEventQuery := "DELETE FROM events WHERE id = ?"
+	stmt, _prepareErr := db.Prepare(deleteEventQuery)
+
+	if _prepareErr != nil {
+		panic("unable to prepare delete event query")
+	}
+
+	stmt.Exec(eventId)
 }
