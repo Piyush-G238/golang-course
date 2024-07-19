@@ -8,7 +8,7 @@ import (
 )
 
 func InitDB() *sql.DB {
-	db, _err := sql.Open("mysql", "root:hH&qeV%y12@tcp(localhost:3306)/golang_dev")
+	db, _err := sql.Open("mysql", "root:hH&qeV%y12@tcp(localhost)/golang_dev?parseTime=true")
 
 	if _err != nil {
 		fmt.Println(_err)
@@ -22,11 +22,12 @@ func InitDB() *sql.DB {
 CREATE TABLE IF NOT EXISTS events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
+    description VARCHAR(255) NOT NULL,
     location VARCHAR(255) NOT NULL,
-    registration_time DATETIME NOT NULL,
-    user_id INT NOT NULL
-);`
+    dateTime TIMESTAMP NOT NULL,
+    userId INT NOT NULL
+);
+`
 	_, _queryErr := db.Exec(createEventTable)
 
 	if _queryErr != nil {

@@ -19,7 +19,7 @@ type Event struct {
 
 func (event Event) Save(db *sql.DB) (int64, error) {
 
-	insertEventQuery := "INSERT INTO events (name, description, location, registration_time, user_id) VALUES (?, ?, ?, ?, ?)"
+	insertEventQuery := "INSERT INTO events (name, description, location, dateTime, userId) VALUES (?, ?, ?, ?, ?)"
 	stmt, _prepareErr := db.Prepare(insertEventQuery)
 
 	if _prepareErr != nil {
@@ -41,7 +41,7 @@ func (event Event) Save(db *sql.DB) (int64, error) {
 func GetAllEvents(db *sql.DB) []Event {
 	var events []Event
 
-	selectAllEvents := "SELECT id, name, description, location, registration_time, user_id FROM events;"
+	selectAllEvents := "SELECT id, name, description, location, userId, dateTime FROM events"
 	rows, _queryErr := db.Query(selectAllEvents)
 
 	if _queryErr != nil {
@@ -49,14 +49,20 @@ func GetAllEvents(db *sql.DB) []Event {
 	}
 
 	for rows.Next() {
-		var event Event = Event{}
-		rows.Scan(
+		var event Event
+		// = Event{}
+		_err := rows.Scan(
 			&event.ID,
 			&event.Name,
 			&event.Description,
 			&event.Location,
-			&event.DateTime,
-			&event.UserID)
+			&event.UserID,
+			&event.DateTime)
+
+		if _err != nil {
+			fmt.Println(_err)
+			fmt.Println("unable to map values of event")
+		}
 		events = append(events, event)
 	}
 	defer rows.Close()
